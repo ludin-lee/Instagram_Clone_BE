@@ -1,14 +1,28 @@
-
 const bcrypt = require('bcryptjs');
 const { loginRequestSchema } = require('../utils/auth.validation');
 const jwt = require('jsonwebtoken');
 const logger = require('../config/loggers');
 const AuthService = require('../services/auth.service.js');
-class LoginController {
+class AuthController {
   authService = new AuthService();
 
-
-  create = async (req, res, next) => {
+  //이메일 중복 체크
+  checkId = async (req, res, next) => {
+    try {
+    } catch (error) {}
+  };
+  //닉네임 중복 체크
+  checkNickname = async (req, res, next) => {
+    try {
+    } catch (error) {}
+  };
+  //회원가입
+  signup = async (req, res, next) => {
+    try {
+    } catch (error) {}
+  };
+  //로그인
+  login = async (req, res, next) => {
     try {
       const { username, password } = await loginRequestSchema.validateAsync(
         req.body,
@@ -23,7 +37,6 @@ class LoginController {
       next(err);
     }
   };
-  kakaoLogin = async (req, res, next) => {};
 }
 
-module.exports = LoginController;
+module.exports = AuthController;
