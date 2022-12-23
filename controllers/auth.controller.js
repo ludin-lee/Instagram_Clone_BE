@@ -1,14 +1,14 @@
-const LoginService = require('../services/login.service.js');
+
 const bcrypt = require('bcryptjs');
 const { loginRequestSchema } = require('../utils/auth.validation');
 const jwt = require('jsonwebtoken');
-const logger = require('../../config/loggers');
+const logger = require('../config/loggers');
+const AuthService = require('../services/auth.service.js');
 class LoginController {
-  constructor() {
-    this.loginService = new LoginService(bcrypt, jwt);
-  }
+  authService = new AuthService();
 
-  login = async (req, res, next) => {
+
+  create = async (req, res, next) => {
     try {
       const { username, password } = await loginRequestSchema.validateAsync(
         req.body,

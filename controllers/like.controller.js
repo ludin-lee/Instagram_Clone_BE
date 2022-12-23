@@ -1,8 +1,8 @@
-const UserInfoService = require('../services/userInfo.service');
-const logger = require('../../config/loggers');
+const LikeService = require('../services/like.service');
+const logger = require('../config/loggers');
 
-class UserInfoController {
-  updateUserService = new UserInfoService();
+class LikeController {
+  likeService = new LikeService();
   updateUser = async (req, res, next) => {
     try {
       const { nickname, selfIntro } = req.body;
@@ -37,4 +37,4 @@ class UserInfoController {
     }
   };
 }
-module.exports = UserInfoController;
+module.exports = LikeController;

@@ -17,8 +17,12 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       userId: {
-        type: DataTypes.STRING,
-        onDelete: 'CASECADE',
+        type: DataTypes.INTEGER,
+        references: {
+          model: 'Users', // Users 테이블에
+          key: 'userId', // userId column 과 관계를 맺음
+        },
+        onDelete: 'CASCADE',
         allowNull: false,
       },
       content: {
