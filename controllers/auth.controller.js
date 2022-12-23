@@ -1,6 +1,3 @@
-const bcrypt = require('bcryptjs');
-const { loginRequestSchema } = require('../utils/auth.validation');
-const jwt = require('jsonwebtoken');
 const logger = require('../config/loggers');
 const AuthService = require('../services/auth.service.js');
 class AuthController {
