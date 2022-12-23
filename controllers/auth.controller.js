@@ -6,17 +6,48 @@ class AuthController {
   //이메일 중복 체크
   checkId = async (req, res, next) => {
     try {
-    } catch (error) {}
+      const { email } = req.body;
+      const checkId = await this.authService.checkId(email);
+      console.log('controller checkId: ', checkId);
+      return res
+        .status(201)
+        .json({ result: true, messeage: '이메일 중복 체크 성공' });
+    } catch (error) {
+      logger.error(error.message);
+      return res
+        .status(error.status || 500)
+        .json({ result: false, message: error.message });
+    }
   };
   //닉네임 중복 체크
   checkNickname = async (req, res, next) => {
     try {
-    } catch (error) {}
+      const { nickname } = req.body;
+      const checkNickname = await this.authService.checkId(nickname);
+
+      return res
+        .status(201)
+        .json({ result: true, messeage: '닉네임 중복 체크 성공' });
+    } catch (error) {
+      logger.error(error.message);
+      return res
+        .status(error.status || 500)
+        .json({ result: false, message: error.message });
+    }
   };
   //회원가입
   signup = async (req, res, next) => {
     try {
-    } catch (error) {}
+      const { email, nickname, password } = req.body;
+      await this.authService.signup(email, nickname, password);
+
+      return res.status(201).json({ result: true, messeage: '성공' });
+    } catch (error) {
+      logger.error(error.message);
+      return res
+        .status(error.status || 500)
+        .json({ result: false, message: error.message });
+    }
   };
   //로그인
   login = async (req, res, next) => {

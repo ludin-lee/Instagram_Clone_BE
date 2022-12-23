@@ -5,13 +5,13 @@ const authMiddleware = require('../middlewares/auth');
 const AuthController = require('../controllers/auth.controller');
 const authController = new AuthController();
 
-router.post('/signup', authMiddleware, authController.signup);
-router.post('/signup/checkId', authMiddleware, authController.checkId);
+router.post('/signup', authController.signup);
+router.post('/signup/checkId', authController.checkId);
 router.post(
-  '/auth/signup/checkNickname',
-  authMiddleware,
+  '/signup/checkNickname',
+
   authController.checkNickname,
 );
-router.post('/auth/signup/login', authMiddleware, authController.login);
+router.post('/signup/login', authController.login);
 
 module.exports = router;
