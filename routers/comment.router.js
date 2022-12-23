@@ -5,7 +5,8 @@ const authMiddleware = require('../middlewares/auth');
 const CommentController = require('../controllers/comment.controller');
 const commentController = new CommentController();
 
-router.post('/:itemId', authMiddleware, commentController.createComment);
+router.get('/:postId', commentController.findComment);
+router.post('/:postId', authMiddleware, commentController.createComment);
 router.patch('/:commentId', authMiddleware, commentController.updateComment);
 router.delete('/:commentId', authMiddleware, commentController.deleteComment);
 
