@@ -13,6 +13,9 @@ class LikeService {
     } else if (postLike.userId === user.userId) {
       this.likeRepository.deletePostLike(postId, user);
       return { data: 0 };
+    } else {
+      this.likeRepository.createPostLike(postId, user);
+      return { data: 1 };
     }
   };
 }
