@@ -1,81 +1,22 @@
-const CommentRepository = require('../repositories/comment.repository');
-
-const { Comments } = require('../models');
+const LikeRepository = require('../repositories/like.repository');
+const { Postlikes } = require('../models');
 
 class LikeService {
-  commentRepository = new CommentRepository(Comments);
+  likeRepository = new LikeRepository(Postlikes);
 
-  createComment = async (comment, userId, todoId) => {
-    if (!comment) {
-      throw new Error('comment 내용을 적어주세요.');
+  createLike = async (postId, user) => {
+    const postLike = await this.likeRepository.findOneLike(postId);
+
+    if (postLike === null) {
+      this.likeRepository.createPostLike(postId, user);
+      return { data: 1 };
+    } else if (postLike.userId === user.userId) {
+      this.likeRepository.deletePostLike(postId, user);
+      return { data: 0 };
+    } else {
+      this.likeRepository.createPostLike(postId, user);
+      return { data: 1 };
     }
-
-    const todo = this.todoRepository.findTodoList(todoId);
-    if (!todo) {
-      throw new Error('게시글이 없습니다.');
-    }
-
-    const createComment = await this.commentRepository.createComment(
-      comment,
-      userId,
-      todoId,
-    );
-    console.log('createComment', createComment);
-
-    return {
-      commentId: createComment.commentId,
-      userId: createComment.userId,
-      comment: createComment.comment,
-      editCheck: 'false',
-      createdAt: createComment.createdAt,
-      updatedAt: createComment.updatedAt,
-    };
-  };
-
-  findAllComment = async () => {
-    const findAllComment = await this.commentRepository.findAllComment();
-    findAllComment.sort((a, b) => {
-      return b.createdAt - a.createdAt;
-    });
-    return findAllComment;
-  };
-
-  updateComment = async (commentId, user, comment) => {
-    const isComment = await this.commentRepository.findOneComment(commentId);
-
-    if (isComment.userId !== user.userId) {
-      throw new Error('댓글이 없습니다.');
-    }
-
-    if (comment === '') {
-      throw new Error('빈칸을 채워주세요');
-    }
-
-    const updateComment = await this.commentRepository.updateComment(
-      commentId,
-      comment,
-    );
-
-    if (!updateComment) {
-      throw new Error('게시글이 없습니다.');
-    }
-    return {
-      commentId: updateComment.commentId,
-      userId: updateComment.userId,
-      comment: updateComment.comment,
-      editCheck: 'true',
-      createdAt: updateComment.createdAt,
-      updatedAt: updateComment.updatedAt,
-    };
-  };
-
-  deleteComment = async (commentId) => {
-    const isComment = await this.commentRepository.findOneComment(commentId);
-    if (!isComment) {
-      throw new Error('댓글이 없습니다.');
-    }
-    const result = await this.commentRepository.deleteComment(commentId);
-    return result;
   };
 }
 

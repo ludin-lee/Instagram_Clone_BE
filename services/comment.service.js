@@ -1,54 +1,46 @@
 const CommentRepository = require('../repositories/comment.repository');
-
-const { Comments } = require('../models');
+const PostRepository = require('../repositories/post.repository');
+const { Comments, Posts } = require('../models');
+const { ValidationError } = require('../exceptions/index.exception');
 
 class CommentService {
   commentRepository = new CommentRepository(Comments);
+  postRepository = new PostRepository(Posts);
 
-  createComment = async (comment, userId, todoId) => {
+  createComment = async (comment, user, postId) => {
     if (!comment) {
-      throw new Error('comment 내용을 적어주세요.');
+      throw new ValidationError('comment 내용을 적어주세요.');
     }
 
-    const todo = this.todoRepository.findTodoList(todoId);
-    if (!todo) {
-      throw new Error('게시글이 없습니다.');
+    const post = this.postRepository.findOnePost(postId);
+    if (!post) {
+      throw new ValidationError('게시글이 없습니다.');
     }
 
     const createComment = await this.commentRepository.createComment(
       comment,
-      userId,
-      todoId,
+      user,
+      postId,
     );
     console.log('createComment', createComment);
 
-    return {
-      commentId: createComment.commentId,
-      userId: createComment.userId,
-      comment: createComment.comment,
-      editCheck: 'false',
-      createdAt: createComment.createdAt,
-      updatedAt: createComment.updatedAt,
-    };
+    return createComment;
   };
 
-  findAllComment = async () => {
-    const findAllComment = await this.commentRepository.findAllComment();
-    findAllComment.sort((a, b) => {
-      return b.createdAt - a.createdAt;
-    });
-    return findAllComment;
+  findComment = async (postId) => {
+    const comments = this.commentRepository.findPostComment(postId);
+    return comments;
   };
 
   updateComment = async (commentId, user, comment) => {
     const isComment = await this.commentRepository.findOneComment(commentId);
 
     if (isComment.userId !== user.userId) {
-      throw new Error('댓글이 없습니다.');
+      throw new ValidationError('댓글이 없습니다.');
     }
 
     if (comment === '') {
-      throw new Error('빈칸을 채워주세요');
+      throw new ValidationError('빈칸을 채워주세요');
     }
 
     const updateComment = await this.commentRepository.updateComment(
@@ -56,23 +48,16 @@ class CommentService {
       comment,
     );
 
-    if (!updateComment) {
-      throw new Error('게시글이 없습니다.');
+    if (updateComment.includes(0)) {
+      throw new ValidationError('게시글이 없습니다.');
     }
-    return {
-      commentId: updateComment.commentId,
-      userId: updateComment.userId,
-      comment: updateComment.comment,
-      editCheck: 'true',
-      createdAt: updateComment.createdAt,
-      updatedAt: updateComment.updatedAt,
-    };
+    return updateComment;
   };
 
   deleteComment = async (commentId) => {
     const isComment = await this.commentRepository.findOneComment(commentId);
     if (!isComment) {
-      throw new Error('댓글이 없습니다.');
+      throw new ValidationError('댓글이 없습니다.');
     }
     const result = await this.commentRepository.deleteComment(commentId);
     return result;

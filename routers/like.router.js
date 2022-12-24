@@ -5,7 +5,6 @@ const authMiddleware = require('../middlewares/auth');
 const LikeController = require('../controllers/like.controller');
 const likeController = new LikeController();
 
-router.post('/:itemId', authMiddleware, likeController.updateUser);
-
+router.post('/post/:postId', authMiddleware, likeController.likePost);
 
 module.exports = router;

@@ -5,8 +5,8 @@ class CommentController {
 
   createComment = async (req, res, next) => {
     const { comment } = req.body;
-    const { userId } = res.locals.user;
-    const { todoId } = req.params;
+    const { postId } = req.params;
+    const user = res.locals.user;
 
     if (!comment) {
       return res
@@ -15,28 +15,31 @@ class CommentController {
     }
 
     try {
-      const createComment = await this.commentService.createComment(
-        comment,
-        userId,
-        todoId,
-      );
+      await this.commentService.createComment(comment, user, postId);
 
       return res
-        .status(200)
-        .json({ message: '댓글을 생성하였습니다.', result: createComment });
+        .status(201)
+        .json({ message: '댓글이 작성 되었습니다.', result: true });
     } catch (error) {
       console.error(error);
-      res.status(400).json({ errorMessage: error.message });
+      res
+        .status(500)
+        .json({ errorMessage: '댓글 작성에 실패했습니다.', result: false });
     }
   };
 
-  findAllComment = async (req, res, next) => {
+  findComment = async (req, res, next) => {
+    const { postId } = req.params;
+
     try {
-      const findAllComment = await this.commentService.findAllComment();
-      return res.status(200).json({ result: findAllComment });
+      const comments = await this.commentService.findComment(postId);
+
+      return res.status(201).json({ result: comments });
     } catch (error) {
       console.error(error);
-      res.status(400).json({ errorMessage: error.message });
+      res
+        .status(500)
+        .json({ errorMessage: '댓글 조회에 실패했습니다.', result: false });
     }
   };
 
@@ -48,10 +51,14 @@ class CommentController {
     try {
       await this.commentService.updateComment(commentId, user, comment);
 
-      return res.status(200).json({ message: '댓글 수정 완료' });
+      return res
+        .status(201)
+        .json({ message: '댓글이 수정 되었습니다.', result: true });
     } catch (error) {
       console.error(error);
-      res.status(400).json({ errorMessage: error.message });
+      res
+      .status(500)
+      .json({ errorMessage: '댓글 수정에 실패했습니다.', result: false });
     }
   };
 
@@ -60,10 +67,14 @@ class CommentController {
 
     try {
       await this.commentService.deleteComment(commentId);
-      return res.status(200).json({ message: '댓글 삭제 완료' });
+      return res
+        .status(201)
+        .json({ message: '댓글이 삭제 되었습니다.', result: true });
     } catch (error) {
       console.error(error);
-      res.status(400).json({ errorMessage: error.message });
+      res
+      .status(500)
+      .json({ errorMessage: '댓글 삭제에 실패했습니다.', result: false });
     }
   };
 }
