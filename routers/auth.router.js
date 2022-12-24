@@ -12,6 +12,7 @@ router.post(
 
   authController.checkNickname,
 );
-router.post('/signup/login', authController.login);
+router.post('/login', authController.login);
+router.get('/login/tokencheck', authMiddleware, authController.tokenCheck);
 
 module.exports = router;

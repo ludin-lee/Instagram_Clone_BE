@@ -52,17 +52,25 @@ class AuthController {
   //로그인
   login = async (req, res, next) => {
     try {
-      const { username, password } = await loginRequestSchema.validateAsync(
-        req.body,
-      ); // body required검증
-
-      const accessToken = await this.loginService.login(username, password); // 토큰 받아오기
+      const { email, password } = req.body;
+      const accessToken = await this.authService.login(email, password); // 토큰 받아오기
       res.header('token', `Bearer ${accessToken}`);
 
       res.status(200).json({ message: '로그인에 성공했습니다.', accessToken });
     } catch (err) {
       logger.error(err.message);
       next(err);
+    }
+  };
+  //토큰 인증
+  tokenCheck = async (req, res, next) => {
+    try {
+      const user = res.locals.user;
+      console.log('controller user: ', user);
+      const data = await this.authService.findTokenUser(user);
+      return res.status(201).json({ data });
+    } catch (error) {
+      next(error);
     }
   };
 }
