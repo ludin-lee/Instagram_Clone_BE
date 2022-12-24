@@ -1,44 +1,42 @@
+const e = require('express');
+const { Users } = require('../models');
 class AuthRepository {
-    constructor(CommentsModel) {
-      this.commentsModel = CommentsModel;
-    }
-  
-    createComment = async (comment, userId, todoId) => {
-      const createComment = await this.commentsModel.create({
-        comment,
-        userId,
-        todoId,
-      });
-      return createComment;
-    };
-  
-    findAllComment = async () => {
-      const findAllComment = await this.commentsModel.findAll({});
-      return findAllComment;
-    };
-  
-    findOneComment = async (commentId) => {
-      const findOneComment = await this.commentsModel.findOne({
-        where: { commentId },
-      });
-      return findOneComment;
-    };
-  
-    updateComment = async (commentId, comment) => {
-      const updateComment = await this.commentsModel.update(
-        { comment },
-        { where: { commentId } },
-      );
-      console.log('updateComment', updateComment);
-      return updateComment;
-    };
-  
-    deleteComment = async (commentId) => {
-      const deleteComment = await this.commentsModel.destroy({
-        where: { commentId },
-      });
-      return deleteComment;
-    };
+  constructor(UsersModel) {
+    this.usersModel = UsersModel;
   }
-  
-  module.exports = AuthRepository;
+  //이메일 중복 체크
+  checkId = async (email) => {
+    const emailVal = await Users.findOne({ where: { email } });
+    return emailVal;
+  };
+
+  // 닉네임 중복 체크
+  checkNickname = async (nickname) => {
+    const nicknameVal = await Users.findOne({ where: { nickname } });
+    return nicknameVal;
+  };
+
+  //회원가입
+  signup = async (email, nickname, hashedPassword) => {
+    const signupCreate = await Users.create({
+      email,
+      nickname,
+      password: hashedPassword,
+    });
+    return signupCreate;
+  };
+
+  //로그인
+  login = async (email) => {
+    const loginVal = await Users.findOne({ where: { email } });
+    return loginVal;
+  };
+
+  //토큰 인증
+  findByUserId = async (userId) => {
+    const isUser = await Users.findOne({ where: { userId } });
+    return isUser;
+  };
+}
+
+module.exports = AuthRepository;
