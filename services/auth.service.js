@@ -1,81 +1,85 @@
-const CommentRepository = require('../repositories/comment.repository');
-
-const { Comments } = require('../models');
+const bcrypt = require('bcryptjs');
+const SECRET_KEY = process.env.SECRET_KEY;
+const jwt = require('jsonwebtoken');
+const AuthRepository = require('../repositories/auth.repository');
+const { Users } = require('../models');
+const { check } = require('prettier');
+const {
+  AuthorizationError,
+  ValidationError,
+} = require('../exceptions/index.exception');
 
 class AuthService {
-  commentRepository = new CommentRepository(Comments);
+  authRepository = new AuthRepository(Users);
 
-  createComment = async (comment, userId, todoId) => {
-    if (!comment) {
-      throw new Error('comment 내용을 적어주세요.');
+  //중복 이메일 체크
+  checkId = async (email) => {
+    const checkId = await this.authRepository.checkId(email);
+    console.log('service !checkId: ', !checkId);
+
+    if (checkId) {
+      throw new ValidationError('이미 사용중인 이메일 입니다.');
+    } else {
+      return true;
     }
+  };
 
-    const todo = this.todoRepository.findTodoList(todoId);
-    if (!todo) {
-      throw new Error('게시글이 없습니다.');
+  //중복 닉네임 체크
+  checkNickname = async (nickname) => {
+    const nicknameVal = await this.authRepository.checkNickname(nickname);
+    console.log('nicknameVal: ', nicknameVal);
+
+    if (nicknameVal) {
+      throw new ValidationError('이미 사용중인 닉네임 입니다.');
+    } else {
+      return true;
     }
+  };
 
-    const createComment = await this.commentRepository.createComment(
-      comment,
-      userId,
-      todoId,
+  //회원가입
+  signup = async (email, nickname, password) => {
+    const hashedPassword = await bcrypt.hash(password, 6);
+    await this.authRepository.signup(email, nickname, hashedPassword);
+
+    return true;
+  };
+
+  //로그인
+  login = async (email, password) => {
+    const loginVal = await this.authRepository.login(email, password);
+    const checkPassword = await bcrypt.compare(password, loginVal.password);
+
+    if (email !== loginVal.email || !checkPassword) {
+      throw new ValidationError('이메일 또는 패스워드를 확인해주세요.');
+    }
+    const token = jwt.sign(
+      {
+        userId: loginVal.userId,
+        email: loginVal.email,
+        nickname: loginVal.nickname,
+        profileImg: loginVal.profileImg,
+      },
+      SECRET_KEY,
+      { expiresIn: '1hr' },
     );
-    console.log('createComment', createComment);
+    console.log('token:', token);
+    return token;
+  };
 
-    return {
-      commentId: createComment.commentId,
-      userId: createComment.userId,
-      comment: createComment.comment,
-      editCheck: 'false',
-      createdAt: createComment.createdAt,
-      updatedAt: createComment.updatedAt,
+  //토큰 인증
+  findTokenUser = async (user) => {
+    const loginVal = await this.authRepository.findByUserId(user.userId);
+    console.log('user.userId: ', user.userId);
+    if (!loginVal) {
+      throw new AuthorizationError('유저가 없습니다');
+    }
+    const data = {
+      result: true,
+      email: loginVal.email,
+      nickname: loginVal.nickname,
+      profileImg: loginVal.profileImg,
     };
-  };
-
-  findAllComment = async () => {
-    const findAllComment = await this.commentRepository.findAllComment();
-    findAllComment.sort((a, b) => {
-      return b.createdAt - a.createdAt;
-    });
-    return findAllComment;
-  };
-
-  updateComment = async (commentId, user, comment) => {
-    const isComment = await this.commentRepository.findOneComment(commentId);
-
-    if (isComment.userId !== user.userId) {
-      throw new Error('댓글이 없습니다.');
-    }
-
-    if (comment === '') {
-      throw new Error('빈칸을 채워주세요');
-    }
-
-    const updateComment = await this.commentRepository.updateComment(
-      commentId,
-      comment,
-    );
-
-    if (!updateComment) {
-      throw new Error('게시글이 없습니다.');
-    }
-    return {
-      commentId: updateComment.commentId,
-      userId: updateComment.userId,
-      comment: updateComment.comment,
-      editCheck: 'true',
-      createdAt: updateComment.createdAt,
-      updatedAt: updateComment.updatedAt,
-    };
-  };
-
-  deleteComment = async (commentId) => {
-    const isComment = await this.commentRepository.findOneComment(commentId);
-    if (!isComment) {
-      throw new Error('댓글이 없습니다.');
-    }
-    const result = await this.commentRepository.deleteComment(commentId);
-    return result;
+    return data;
   };
 }
 

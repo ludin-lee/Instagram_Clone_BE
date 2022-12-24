@@ -1,11 +1,10 @@
 const express = require('express');
 const dotenv = require('dotenv');
 dotenv.config();
-const router = require('./routers')
+const router = require('./routers');
 const app = express();
 const db = require('./models');
 const helmet = require('helmet');
-
 const logger = require('./config/loggers');
 const cors = require('cors');
 
