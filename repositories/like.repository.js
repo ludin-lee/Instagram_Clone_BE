@@ -24,6 +24,12 @@ class LikeRepository {
     });
     return deletePostLike;
   };
+
+  findOneLikeDetail = async (postId, userId) => {
+    return await this.postLikesModel.findOne({
+      where: { postId, userId },
+    });
+  };
 }
 
 module.exports = LikeRepository;

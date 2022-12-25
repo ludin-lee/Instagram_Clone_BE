@@ -18,6 +18,10 @@ class LikeService {
       return { data: 1 };
     }
   };
+
+  likefind = async (postId, userId) => {
+    return await this.likeRepository.findOneLikeDetail(postId, userId);
+  };
 }
 
 module.exports = LikeService;

@@ -52,6 +52,14 @@ class DuplicateError extends Error {
   }
 }
 
+class UnknownError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status || 500;
+    this.name = 'UnknownError';
+  }
+}
+
 module.exports = {
   AuthorizationError,
   BadRequestError,
@@ -59,4 +67,5 @@ module.exports = {
   NotFoundError,
   ValidationError,
   DuplicateError,
+  UnknownError,
 };
