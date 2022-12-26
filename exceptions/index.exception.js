@@ -51,7 +51,7 @@ class DuplicateError extends Error {
     this.name = 'DuplicateError';
   }
 }
-
+//예외처리 미대상
 class UnknownError extends Error {
   constructor(message, status) {
     super(message);
