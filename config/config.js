@@ -3,7 +3,7 @@ module.exports = {
   development: {
     username: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    database: 'stargram_db',
+    database: process.env.DATABASE,
     host: process.env.HOST,
     dialect: 'mysql',
     timezone: '+09:00',
@@ -11,7 +11,7 @@ module.exports = {
   test: {
     username: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    database: 'stargram_db',
+    database: process.env.DATABASE,
     host: process.env.HOST,
     dialect: 'mysql',
     timezone: '+09:00',

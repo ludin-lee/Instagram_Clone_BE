@@ -36,14 +36,5 @@
     "prettier": "^2.8.1",
     "sequelize": "^6.27.0",
     "sequelize-cli": "^6.5.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nacjji/NAOBAB_BE.git"
-  },
-  "bugs": {
-    "url": "https://github.com/nacjji/NAOBAB_BE/issues"
-  },
-  "homepage": "https://github.com/nacjji/NAOBAB_BE#readme",
-  "description": ""
+  }
 }

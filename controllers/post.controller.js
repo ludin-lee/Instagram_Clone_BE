@@ -1,96 +1,144 @@
-const logger = require('../../config/loggers');
-const DiaryService = require('../../src/services/diary.service');
-const { ApiError } = require('../utils/apiError');
-const multer = require('multer');
-const upload = multer;
+const PostService = require('../services/post.service');
+const CommentService = require('../services/comment.service');
+const PostlikeService = require('../services/like.service');
+const {
+  NotFoundError,
+  ValidationError,
+  AuthorizationError,
+  UnknownError,
+} = require('../exceptions/index.exception');
+class PostController {
+  postService = new PostService();
+  commentService = new CommentService();
+  postlikeService = new PostlikeService();
 
-class DiaryController {
-  diaryService = new DiaryService();
-  createDiary = async (req, res) => {
+  createPost = async (req, res) => {
     try {
       const { userId } = res.locals.user;
-      const { title, content, weather } = req.body;
+      const { content } = req.body;
       const fileName = req.file.location;
-      console.log(fileName);
-      await this.diaryService.createDiary(
-        userId,
-        title,
-        fileName,
-        content,
-        weather,
-      );
-      return res.status(201).json({ message: '생성완료' });
+
+      await this.postService.createPost(userId, content, fileName);
+      return res
+        .status(201)
+        .json({ message: '게시글이 추가되었습니다.', result: true });
     } catch (error) {
-      logger.error(error.message);
-
-      res.status(error.status).json({ error: error.message });
-    }
-  };
-
-  findAllDiaries = async (req, res) => {
-    try {
-      const { userId } = res.locals.user;
-      const diaries = await this.diaryService.findAllDiaries(userId);
-      return res.status(200).json({ diaries });
-    } catch (error) {
-      logger.error(error.message);
-
-      res.status(error.status).json({ error: error.message });
-    }
-  };
-
-  findDetailDiary = async (req, res) => {
-    try {
-      const { diaryId } = req.params;
-      const { userId } = res.locals.user;
-      const diary = await this.diaryService.findDetailDiary({
-        diaryId,
-        userId,
+      res.status(error.status).json({
+        errorMessage: error.message,
+        result: false,
       });
-      return res.status(200).json({ diary });
-    } catch (error) {
-      logger.error(error.message);
-
-      res.status(error.status).json({ error: error.message });
     }
   };
 
-  updateDiary = async (req, res) => {
+  findAllPosts = async (req, res) => {
     try {
-      const { title, image, content, weather } = req.body;
-      const { diaryId } = req.params;
-      const { userId } = res.locals.user;
-
-      await this.diaryService.updateDiary(
-        userId,
-        diaryId,
-        title,
-        image,
-        content,
-        weather,
-      );
-
-      return res.status(201).json({ message: '일기장 수정' });
+      const posts = await this.postService.findAllPosts();
+      return res.status(200).json({ posts });
     } catch (error) {
-      logger.error(err.message);
-
-      res.status(error.status).json({ error: error.message });
+      res.status(error.status).json({
+        errorMessage: error.message,
+        result: false,
+      });
     }
   };
 
-  deleteDiary = async (req, res) => {
+  findProfilePosts = async (req, res) => {
     try {
-      const { diaryId } = req.params;
+      const { nickname } = req.params;
       const { userId } = res.locals.user;
 
-      await this.diaryService.deleteDiary(userId, diaryId);
-      return res.status(201).json({ message: '일기장 삭제' });
-    } catch (error) {
-      logger.error(err.message);
+      const userInfo = await this.postService.findUser(userId);
 
-      res.status(error.status).json({ error: error.message });
+      if (nickname !== userInfo.nickname)
+        throw new AuthorizationError('본인의 프로필이 아닙니다');
+
+      const posts = await this.postService.findProfilePosts(userId);
+      return res.status(200).json({ posts });
+    } catch (error) {
+      res.status(error.status).json({
+        errorMessage: error.message,
+        result: false,
+      });
+    }
+  };
+
+  findDetailPost = async (req, res) => {
+    try {
+      const { postId } = req.params;
+      const { userId } = res.locals.user;
+      const postInfo = await this.postService.findDetailPost(postId);
+      const commentInfo = await this.commentService.findComment(postId);
+      const postlikeInfo = await this.postlikeService.likefind(postId, userId);
+
+      if (!postInfo) throw new NotFoundError('없는 게시글입니다.');
+
+      if (!postlikeInfo) {
+        postInfo[0].postlike = false;
+      } else {
+        postInfo[0].postlike = true;
+      }
+
+      postInfo[0].comments = commentInfo;
+
+      return res.status(200).json({ postInfo });
+    } catch (error) {
+      res.status(error.status).json({
+        errorMessage: error.message,
+        result: false,
+      });
+    }
+  };
+
+  updatePost = async (req, res) => {
+    try {
+      const { userId } = res.locals.user;
+      const { postId } = req.params;
+      const { content } = req.body;
+
+      const postInfo = await this.postService.findDetailPost(postId);
+
+      if (postInfo.length === 0) {
+        throw new NotFoundError('없는 게시글입니다.');
+      }
+      if (userId !== postInfo[0].userId)
+        throw new AuthorizationError('본인의 게시글이 아닙니다');
+
+      await this.postService.updatePost(postId, content);
+
+      return res
+        .status(201)
+        .json({ message: '게시글 수정에 성공했습니다.', result: true });
+    } catch (error) {
+      res.status(error.status).json({
+        errorMessage: error.message,
+        result: false,
+      });
+    }
+  };
+
+  deletePost = async (req, res) => {
+    try {
+      const { postId } = req.params;
+      const { userId } = res.locals.user;
+
+      const postInfo = await this.postService.findDetailPost(postId);
+
+      if (!postInfo) throw new NotFoundError('없는 게시글입니다.');
+      if (userId !== postInfo[0].userId)
+        throw new AuthorizationError('본인의 게시글이 아닙니다');
+
+      await this.postService.deletePost(postId);
+
+      return res
+        .status(201)
+        .json({ message: '게시글 수정에 삭제했습니다.', result: true });
+    } catch (error) {
+      res.status(error.status).json({
+        errorMessage: error.message,
+        result: false,
+      });
     }
   };
 }
 
-module.exports = DiaryController;
+module.exports = PostController;

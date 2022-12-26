@@ -1,10 +1,10 @@
 const express = require('express');
 const dotenv = require('dotenv');
 dotenv.config();
-const router = require('./src/routers/index');
+const router = require('./routers');
 const app = express();
+const db = require('./models');
 const helmet = require('helmet');
-
 const logger = require('./config/loggers');
 const cors = require('cors');
 
@@ -15,6 +15,19 @@ app.use(
     credentials: true, // default: false
   }),
 );
+
+// db 연결 확인
+db.sequelize
+  .sync()
+  .then(() => {
+    console.log('db 연결 성공');
+  })
+  .catch(console.error);
+
+// sequelize model sync() 수정하기
+db.sequelize.sync({
+  force: false,
+});
 
 app.get('/', (req, res) => {
   logger.info('GET /');

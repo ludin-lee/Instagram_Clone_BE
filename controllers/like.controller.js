@@ -1,40 +1,37 @@
-const UserInfoService = require('../services/userInfo.service');
-const logger = require('../../config/loggers');
+const LikeService = require('../services/like.service');
+const PostService = require('../services/post.service');
+class LikeController {
+  likeService = new LikeService();
+  postService = new PostService();
+  likePost = async (req, res) => {
+    const { postId } = req.params;
+    const user = res.locals.user;
 
-class UserInfoController {
-  updateUserService = new UserInfoService();
-  updateUser = async (req, res, next) => {
     try {
-      const { nickname, selfIntro } = req.body;
-      const { userId } = res.locals.user;
-      if (req.file) {
-        const fileName = req.file.location;
-        await this.updateUserService.updateUser(
-          userId,
-          nickname,
-          selfIntro,
-          fileName,
-        );
+      const postInfo = await this.postService.findDetailPost(postId);
+
+      if (postInfo.length === 0) {
+        return res
+          .status(404)
+          .json({ message: '없는 게시글입니다.', result: false });
       }
-      await this.updateUserService.updateUser(userId, nickname, selfIntro);
-      return res.status(201).json({ message: '회원 수정 참 잘했어요!' });
+      if (postInfo.length !== 0) {
+        const result = await this.likeService.createLike(postId, user);
+        if (result.data === 0) {
+          await this.postService.deletelike(postId);
+          return res
+            .status(200)
+            .json({ message: '좋아요가 삭제 되었습니다.', result: true });
+        } else {
+          await this.postService.createlike(postId);
+          return res
+            .status(200)
+            .json({ message: '좋아요가 추가 되었습니다.', result: true });
+        }
+      }
     } catch (error) {
-      console.log(error);
-      logger.error(error.message);
-      res.status(error.status).json({ error: error.message });
-    }
-  };
-
-  userInfo = async (req, res, next) => {
-    try {
-      const { userId } = res.locals.user;
-
-      const userInfo = await this.updateUserService.userInfo(userId);
-      res.status(200).json({ userInfo });
-    } catch (error) {
-      logger.error(error.message);
-      res.status(error.status).json({ error: error.message });
+      res.status(500).json({ errorMessage: '알 수 없는 오류 발생' });
     }
   };
 }
-module.exports = UserInfoController;
+module.exports = LikeController;

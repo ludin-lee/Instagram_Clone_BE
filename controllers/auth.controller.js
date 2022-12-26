@@ -1,20 +1,60 @@
-const LoginService = require('../services/login.service.js');
-const bcrypt = require('bcryptjs');
-const { loginRequestSchema } = require('../utils/auth.validation');
-const jwt = require('jsonwebtoken');
-const logger = require('../../config/loggers');
-class LoginController {
-  constructor() {
-    this.loginService = new LoginService(bcrypt, jwt);
-  }
+const logger = require('../config/loggers');
+const AuthService = require('../services/auth.service.js');
+class AuthController {
+  authService = new AuthService();
 
+  //이메일 중복 체크
+  checkId = async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      const checkId = await this.authService.checkId(email);
+
+      return res
+        .status(201)
+        .json({ result: true, messeage: '이메일 중복 체크 성공' });
+    } catch (error) {
+      logger.error(error.message);
+      return res
+        .status(error.status || 500)
+        .json({ result: false, message: error.message });
+    }
+  };
+  //닉네임 중복 체크
+  checkNickname = async (req, res, next) => {
+    try {
+      const { nickname } = req.body;
+
+      const checkNickname = await this.authService.checkNickname(nickname);
+
+      return res
+        .status(201)
+        .json({ result: true, messeage: '닉네임 중복 체크 성공' });
+    } catch (error) {
+      logger.error(error.message);
+      return res
+        .status(error.status || 500)
+        .json({ result: false, message: error.message });
+    }
+  };
+  //회원가입
+  signup = async (req, res, next) => {
+    try {
+      const { email, nickname, password } = req.body;
+      await this.authService.signup(email, nickname, password);
+
+      return res.status(201).json({ result: true, messeage: '성공' });
+    } catch (error) {
+      logger.error(error.message);
+      return res
+        .status(error.status || 500)
+        .json({ result: false, message: error.message });
+    }
+  };
+  //로그인
   login = async (req, res, next) => {
     try {
-      const { username, password } = await loginRequestSchema.validateAsync(
-        req.body,
-      ); // body required검증
-
-      const accessToken = await this.loginService.login(username, password); // 토큰 받아오기
+      const { email, password } = req.body;
+      const accessToken = await this.authService.login(email, password); // 토큰 받아오기
       res.header('token', `Bearer ${accessToken}`);
 
       res.status(200).json({ message: '로그인에 성공했습니다.', accessToken });
@@ -23,7 +63,17 @@ class LoginController {
       next(err);
     }
   };
-  kakaoLogin = async (req, res, next) => {};
+  //토큰 인증
+  tokenCheck = async (req, res, next) => {
+    try {
+      const user = res.locals.user;
+
+      const data = await this.authService.findTokenUser(user);
+      return res.status(201).json({ data });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
-module.exports = LoginController;
+module.exports = AuthController;
