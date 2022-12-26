@@ -37,7 +37,6 @@ class CommentService {
 
   updateComment = async (commentId, user, comment) => {
     const isComment = await this.commentRepository.findOneComment(commentId);
-    await this.postRepository.findDetailPost();
 
     if (isComment.userId !== user.userId) {
       throw new AuthorizationError('내 댓글이 아닙니다.');

@@ -100,8 +100,9 @@ class PostController {
 
       const postInfo = await this.postService.findDetailPost(postId);
 
-      console.log(res.locals.user);
-      if (!postInfo) throw new NotFoundError('없는 게시글입니다.');
+      if (postInfo.length === 0) {
+        throw new NotFoundError('없는 게시글입니다.');
+      }
       if (userId !== postInfo[0].userId)
         throw new AuthorizationError('본인의 게시글이 아닙니다');
 
