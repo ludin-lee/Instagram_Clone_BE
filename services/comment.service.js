@@ -12,7 +12,7 @@ class CommentService {
       throw new ValidationError('comment 내용을 적어주세요.');
     }
 
-    const post = this.postRepository.findOnePost(postId);
+    const post = this.postRepository.findDetailPost(postId);
     if (!post) {
       throw new ValidationError('게시글이 없습니다.');
     }

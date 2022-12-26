@@ -1,44 +1,53 @@
+const { Posts, Comments, PostLikes, sequelize } = require('../models');
+const { QueryTypes } = require('sequelize');
+
 class PostRepository {
-    constructor(CommentsModel) {
-      this.commentsModel = CommentsModel;
-    }
-  
-    createComment = async (comment, userId, todoId) => {
-      const createComment = await this.commentsModel.create({
-        comment,
-        userId,
-        todoId,
-      });
-      return createComment;
-    };
-  
-    findAllComment = async () => {
-      const findAllComment = await this.commentsModel.findAll({});
-      return findAllComment;
-    };
-  
-    findOneComment = async (commentId) => {
-      const findOneComment = await this.commentsModel.findOne({
-        where: { commentId },
-      });
-      return findOneComment;
-    };
-  
-    updateComment = async (commentId, comment) => {
-      const updateComment = await this.commentsModel.update(
-        { comment },
-        { where: { commentId } },
-      );
-      console.log('updateComment', updateComment);
-      return updateComment;
-    };
-  
-    deleteComment = async (commentId) => {
-      const deleteComment = await this.commentsModel.destroy({
-        where: { commentId },
-      });
-      return deleteComment;
-    };
+  constructor(PostModel) {
+    this.postModel = PostModel;
   }
-  
-  module.exports = PostRepository;
+
+  createPost = async (userId, content, fileName) => {
+    await this.postModel.create({ userId, content, image: fileName });
+  };
+
+  findAllPosts = async () => {
+    const query = `SELECT Posts.postId,Posts.userId,Users.nickname,image,content,profileImg, IFNULL(commentsCount,0) as commentsCount
+    FROM Posts LEFT JOIN CountTable 
+    ON Posts.postId = CountTable.postId
+    LEFT JOIN Users
+    On Posts.userId = Users.userId`;
+    const queryResult = await sequelize.query(query, {
+      type: QueryTypes.SELECT,
+    });
+    return queryResult;
+  };
+
+  findProfilePosts = async (userId) => {
+    return await this.postModel.findAll({
+      where: { userId },
+      order: [['createdAt', 'DESC']],
+      attributes: ['postId', 'image', 'createdAt'],
+    });
+  };
+
+  findDetailPost = async (postId) => {
+    const query = `SELECT Posts.postId,Posts.userId,Users.nickname,image,content,Users.profileImg
+    FROM Posts LEFT JOIN Users
+    On Posts.userId = Users.userId
+    WHERE Posts.postId = ${postId}
+    `;
+    const queryResult = await sequelize.query(query, {
+      type: QueryTypes.SELECT,
+    });
+    return queryResult;
+  };
+
+  updatePost = async (postId, content) => {
+    await this.postModel.update({ content }, { where: { postId } });
+  };
+  deletePost = async (postId) => {
+    await this.postModel.destroy({ where: { postId } });
+  };
+}
+
+module.exports = PostRepository;
