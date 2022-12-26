@@ -8,7 +8,7 @@ class AuthController {
     try {
       const { email } = req.body;
       const checkId = await this.authService.checkId(email);
-      console.log('controller checkId: ', checkId);
+
       return res
         .status(201)
         .json({ result: true, messeage: '이메일 중복 체크 성공' });
@@ -23,7 +23,8 @@ class AuthController {
   checkNickname = async (req, res, next) => {
     try {
       const { nickname } = req.body;
-      const checkNickname = await this.authService.checkId(nickname);
+
+      const checkNickname = await this.authService.checkNickname(nickname);
 
       return res
         .status(201)
@@ -66,7 +67,7 @@ class AuthController {
   tokenCheck = async (req, res, next) => {
     try {
       const user = res.locals.user;
-      console.log('controller user: ', user);
+
       const data = await this.authService.findTokenUser(user);
       return res.status(201).json({ data });
     } catch (error) {

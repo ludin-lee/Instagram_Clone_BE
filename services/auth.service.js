@@ -15,7 +15,6 @@ class AuthService {
   //중복 이메일 체크
   checkId = async (email) => {
     const checkId = await this.authRepository.checkId(email);
-    console.log('service !checkId: ', !checkId);
 
     if (checkId) {
       throw new ValidationError('이미 사용중인 이메일 입니다.');
@@ -26,8 +25,8 @@ class AuthService {
 
   //중복 닉네임 체크
   checkNickname = async (nickname) => {
+    console.log('nickname s: ', nickname);
     const nicknameVal = await this.authRepository.checkNickname(nickname);
-    console.log('nicknameVal: ', nicknameVal);
 
     if (nicknameVal) {
       throw new ValidationError('이미 사용중인 닉네임 입니다.');
