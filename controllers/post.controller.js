@@ -33,8 +33,6 @@ class PostController {
   findAllPosts = async (req, res) => {
     try {
       const posts = await this.postService.findAllPosts();
-
-      console.log(posts);
       return res.status(200).json({ posts });
     } catch (error) {
       res.status(error.status).json({
@@ -55,7 +53,6 @@ class PostController {
         throw new AuthorizationError('본인의 프로필이 아닙니다');
 
       const posts = await this.postService.findProfilePosts(userId);
-      console.log(posts);
       return res.status(200).json({ posts });
     } catch (error) {
       res.status(error.status).json({
