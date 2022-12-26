@@ -40,8 +40,6 @@ class PostRepository {
       type: QueryTypes.SELECT,
     });
     return queryResult;
-
-    // return await this.postModel.findByPk(postId);
   };
 
   updatePost = async (postId, content) => {
