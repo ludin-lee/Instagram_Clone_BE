@@ -11,7 +11,7 @@ class PostRepository {
   };
 
   findAllPosts = async () => {
-    const query = `SELECT Posts.postId,Posts.userId,image,content,profileImg, IFNULL(commentsCount,0) as commentsCount
+    const query = `SELECT Posts.postId,Posts.userId,Users.nickname,image,content,profileImg, IFNULL(commentsCount,0) as commentsCount
     FROM Posts LEFT JOIN CountTable 
     ON Posts.postId = CountTable.postId
     LEFT JOIN Users
@@ -31,7 +31,17 @@ class PostRepository {
   };
 
   findDetailPost = async (postId) => {
-    return await this.postModel.findByPk(postId);
+    const query = `SELECT Posts.postId,Posts.userId,Users.nickname,image,content,Users.profileImg
+    FROM Posts LEFT JOIN Users
+    On Posts.userId = Users.userId
+    WHERE Posts.postId = ${postId}
+    `;
+    const queryResult = await sequelize.query(query, {
+      type: QueryTypes.SELECT,
+    });
+    return queryResult;
+
+    // return await this.postModel.findByPk(postId);
   };
 
   updatePost = async (postId, content) => {

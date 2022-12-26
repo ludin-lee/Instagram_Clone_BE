@@ -1,3 +1,5 @@
+const { sequelize } = require('../models');
+const { QueryTypes } = require('sequelize');
 class CommentRepository {
   constructor(CommentsModel) {
     this.commentsModel = CommentsModel;
@@ -20,10 +22,15 @@ class CommentRepository {
   };
 
   findPostComment = async (postId) => {
-    const findPostComment = await this.commentsModel.findOne({
-      where: { postId },
+    const query = `SELECT commentId,postId,comment,Comments.createdAt,Comments.updatedAt,Users.nickname
+    FROM Comments
+    LEFT JOIN Users
+    On Comments.userId = Users.userId
+    WHERE Comments.postId = ${postId}`;
+    const queryResult = await sequelize.query(query, {
+      type: QueryTypes.SELECT,
     });
-    return findPostComment;
+    return queryResult;
   };
 
   findOneComment = async (commentId) => {

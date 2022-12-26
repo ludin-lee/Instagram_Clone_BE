@@ -74,13 +74,14 @@ class PostController {
       const postlikeInfo = await this.postlikeService.likefind(postId, userId);
 
       if (!postInfo) throw new NotFoundError('없는 게시글입니다.');
+      console.log(postInfo);
       if (!postlikeInfo) {
-        postInfo.dataValues.postlike = false;
+        postInfo[0].postlike = false;
       } else {
-        postInfo.dataValues.postlike = true;
+        postInfo[0].postlike = true;
       }
 
-      postInfo.dataValues.comments = commentInfo;
+      postInfo[0].comments = commentInfo;
 
       return res.status(200).json({ postInfo });
     } catch (error) {
@@ -99,7 +100,7 @@ class PostController {
 
       const postInfo = await this.postService.findDetailPost(postId);
       if (!postInfo) throw new NotFoundError('없는 게시글입니다.');
-      if (userId !== postInfo.userId)
+      if (userId !== postInfo[0].userId)
         throw new AuthorizationError('본인의 게시글이 아닙니다');
 
       await this.postService.updatePost(postId, content);

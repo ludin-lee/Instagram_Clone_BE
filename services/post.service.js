@@ -44,7 +44,7 @@ class PostService {
     }
   };
 
-  updatePost = async (userId, postId, content) => {
+  updatePost = async (postId, content) => {
     try {
       await this.postRepository.updatePost(postId, content);
     } catch (error) {
