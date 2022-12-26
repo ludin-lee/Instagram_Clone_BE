@@ -68,14 +68,13 @@ class PostController {
   findDetailPost = async (req, res) => {
     try {
       const { postId } = req.params;
-      const user = res.locals.user;
-      const userId = user.userId;
+      const { userId } = res.locals.user;
       const postInfo = await this.postService.findDetailPost(postId);
       const commentInfo = await this.commentService.findComment(postId);
       const postlikeInfo = await this.postlikeService.likefind(postId, userId);
 
       if (!postInfo) throw new NotFoundError('없는 게시글입니다.');
-      console.log(postInfo);
+
       if (!postlikeInfo) {
         postInfo[0].postlike = false;
       } else {
@@ -100,6 +99,8 @@ class PostController {
       const { content } = req.body;
 
       const postInfo = await this.postService.findDetailPost(postId);
+
+      console.log(res.locals.user);
       if (!postInfo) throw new NotFoundError('없는 게시글입니다.');
       if (userId !== postInfo[0].userId)
         throw new AuthorizationError('본인의 게시글이 아닙니다');
@@ -123,8 +124,9 @@ class PostController {
       const { userId } = res.locals.user;
 
       const postInfo = await this.postService.findDetailPost(postId);
+
       if (!postInfo) throw new NotFoundError('없는 게시글입니다.');
-      if (userId !== postInfo.userId)
+      if (userId !== postInfo[0].userId)
         throw new AuthorizationError('본인의 게시글이 아닙니다');
 
       await this.postService.deletePost(postId);
