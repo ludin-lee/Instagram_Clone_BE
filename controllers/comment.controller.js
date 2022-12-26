@@ -57,24 +57,25 @@ class CommentController {
     } catch (error) {
       console.error(error);
       res
-      .status(500)
-      .json({ errorMessage: '댓글 수정에 실패했습니다.', result: false });
+        .status(500)
+        .json({ errorMessage: '댓글 수정에 실패했습니다.', result: false });
     }
   };
 
   deleteComment = async (req, res, next) => {
     const { commentId } = req.params;
+    const user = res.locals.user;
 
     try {
-      await this.commentService.deleteComment(commentId);
+      await this.commentService.deleteComment(commentId, user);
       return res
         .status(201)
         .json({ message: '댓글이 삭제 되었습니다.', result: true });
     } catch (error) {
       console.error(error);
       res
-      .status(500)
-      .json({ errorMessage: '댓글 삭제에 실패했습니다.', result: false });
+        .status(500)
+        .json({ errorMessage: '댓글 삭제에 실패했습니다.', result: false });
     }
   };
 }

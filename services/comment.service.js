@@ -1,7 +1,10 @@
 const CommentRepository = require('../repositories/comment.repository');
 const PostRepository = require('../repositories/post.repository');
 const { Comments, Posts } = require('../models');
-const { ValidationError } = require('../exceptions/index.exception');
+const {
+  ValidationError,
+  AuthorizationError,
+} = require('../exceptions/index.exception');
 
 class CommentService {
   commentRepository = new CommentRepository(Comments);
@@ -34,9 +37,10 @@ class CommentService {
 
   updateComment = async (commentId, user, comment) => {
     const isComment = await this.commentRepository.findOneComment(commentId);
+    await this.postRepository.findDetailPost();
 
     if (isComment.userId !== user.userId) {
-      throw new ValidationError('댓글이 없습니다.');
+      throw new AuthorizationError('내 댓글이 아닙니다.');
     }
 
     if (comment === '') {
@@ -54,11 +58,13 @@ class CommentService {
     return updateComment;
   };
 
-  deleteComment = async (commentId) => {
+  deleteComment = async (commentId, user) => {
     const isComment = await this.commentRepository.findOneComment(commentId);
-    if (!isComment) {
-      throw new ValidationError('댓글이 없습니다.');
+
+    if (isComment.userId !== user.userId) {
+      throw new AuthorizationError('내 댓글이 아닙니다.');
     }
+
     const result = await this.commentRepository.deleteComment(commentId);
     return result;
   };
