@@ -21,10 +21,10 @@ class CommentController {
         .status(201)
         .json({ message: '댓글이 작성 되었습니다.', result: true });
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ errorMessage: '댓글 작성에 실패했습니다.', result: false });
+      res.status(error.status).json({
+        errorMessage: error.message,
+        result: false,
+      });
     }
   };
 
@@ -36,7 +36,6 @@ class CommentController {
 
       return res.status(201).json({ result: comments });
     } catch (error) {
-      console.error(error);
       res
         .status(500)
         .json({ errorMessage: '댓글 조회에 실패했습니다.', result: false });
@@ -47,7 +46,6 @@ class CommentController {
     const { comment } = req.body;
     const { commentId } = req.params;
     const user = res.locals.user;
-
     try {
       await this.commentService.updateComment(commentId, user, comment);
 
@@ -55,10 +53,10 @@ class CommentController {
         .status(201)
         .json({ message: '댓글이 수정 되었습니다.', result: true });
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ errorMessage: '댓글 수정에 실패했습니다.', result: false });
+      res.status(error.status).json({
+        errorMessage: error.message,
+        result: false,
+      });
     }
   };
 
@@ -73,9 +71,10 @@ class CommentController {
         .json({ message: '댓글이 삭제 되었습니다.', result: true });
     } catch (error) {
       console.error(error);
-      res
-        .status(500)
-        .json({ errorMessage: '댓글 삭제에 실패했습니다.', result: false });
+      res.status(error.status).json({
+        errorMessage: error.message,
+        result: false,
+      });
     }
   };
 }

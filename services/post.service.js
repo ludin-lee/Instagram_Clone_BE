@@ -47,11 +47,9 @@ class PostService {
   updatePost = async (postId, content) => {
     try {
       await this.postRepository.updatePost(postId, content);
-      if (!postInfo) throw new NotFoundError('없는 게시글입니다.');
-      if (userId !== postInfo[0].userId)
-        throw new AuthorizationError('본인의 게시글이 아닙니다');
     } catch (error) {
       logger.error(error.message);
+      new UnknownError('게시글 수정에 실패하였습니다.');
       // if(error === 내가만든 에러다)
       // throw error
       // else new UnknownError('게시글 수정에 실패하였습니다.');
