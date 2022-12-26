@@ -76,6 +76,24 @@ class PostService {
       throw new UnknownError('회원정보 조회에 실패하였습니다.');
     }
   };
+
+  deletelike = async (postId) => {
+    try {
+      this.postRepository.deletelike(postId);
+    } catch (error) {
+      logger.error(error.message);
+      throw new UnknownError('좋아요 삭제에 실패하였습니다.');
+    }
+  };
+
+  createlike = async (postId) => {
+    try {
+      this.postRepository.createlike(postId);
+    } catch (error) {
+      logger.error(error.message);
+      throw new UnknownError('좋아요에 실패하였습니다.');
+    }
+  };
 }
 
 module.exports = PostService;

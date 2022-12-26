@@ -11,7 +11,7 @@ class PostRepository {
   };
 
   findAllPosts = async () => {
-    const query = `SELECT Posts.postId,Posts.userId,Users.nickname,image,content,profileImg, IFNULL(commentsCount,0) as commentsCount
+    const query = `SELECT Posts.postId,Posts.userId,Users.nickname,image,content,profileImg,likeCount,IFNULL(commentsCount,0) as commentsCount
     FROM Posts LEFT JOIN CountTable 
     ON Posts.postId = CountTable.postId
     LEFT JOIN Users
@@ -31,7 +31,7 @@ class PostRepository {
   };
 
   findDetailPost = async (postId) => {
-    const query = `SELECT Posts.postId,Posts.userId,Users.nickname,image,content,Users.profileImg
+    const query = `SELECT Posts.postId,Posts.userId,Users.nickname,image,content,likeCount,Users.profileImg
     FROM Posts LEFT JOIN Users
     On Posts.userId = Users.userId
     WHERE Posts.postId = ${postId}
@@ -47,6 +47,14 @@ class PostRepository {
   };
   deletePost = async (postId) => {
     await this.postModel.destroy({ where: { postId } });
+  };
+
+  deletelike = async (postId) => {
+    await this.postModel.decrement({ likeCount: 1 }, { where: { postId } });
+  };
+
+  createlike = async (postId) => {
+    await this.postModel.increment({ likeCount: 1 }, { where: { postId } });
   };
 }
 
