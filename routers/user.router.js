@@ -21,4 +21,11 @@ router.post(
 
 //유저의 팔로잉 조회
 router.get('/:followerId/follow', authMiddleware, userController.following);
+
+//유저의 팔로워 조회
+router.get('/:followeingId/follower', authMiddleware, userController.follower);
+
+//팔로잉, 팔로워 카운트 조회
+router.get('/:userId/count', authMiddleware, userController.count);
+
 module.exports = router;

@@ -5,7 +5,7 @@ const UserRepository = require('../repositories/user.repository');
 
 class UserService {
   userRepository = new UserRepository(Users, Follow);
-
+  //팔로우 하기
   addfollowing = async (userId, followingId) => {
     console.log('userId, followingId: ', userId, followingId);
     const findUser = await this.userRepository.findUser(userId);
@@ -17,7 +17,7 @@ class UserService {
       throw new NotFoundError('존재하지 않는 유저입니다');
     }
   };
-
+  //언팔로우 하기
   unfollowing = async (userId, followingId) => {
     const findUser = await this.userRepository.findUser(userId);
     if (findUser) {
@@ -27,6 +27,7 @@ class UserService {
       throw new NotFoundError('존재하지 않는 유저입니다');
     }
   };
+  //팔로잉 유저 조회
   following = async (userId, followerId) => {
     const findUser = await this.userRepository.findUser(userId);
 
@@ -36,6 +37,34 @@ class UserService {
       });
 
       return followList;
+    } else {
+      throw new NotFoundError('존재하지 않는 유저입니다');
+    }
+  };
+  //팔로우 유저 조회
+  follower = async (userId, followerId) => {
+    const findUser = await this.userRepository.findUser(userId);
+
+    if (findUser) {
+      const followList = await findUser.getFollowers({
+        attributes: ['nickname'],
+      });
+
+      return followList;
+    } else {
+      throw new NotFoundError('존재하지 않는 유저입니다');
+    }
+  };
+  //팔로잉, 팔로우 카운트
+  count = async (userId) => {
+    const findUser = await this.userRepository.findUser(userId);
+    if (findUser) {
+      const countfollowings = await findUser.countFollowings();
+      const countfollowers = await findUser.countFollowers();
+
+      const counts = [];
+      counts.push({ 팔로워: countfollowers }, { 팔로잉: countfollowings });
+      return counts;
     } else {
       throw new NotFoundError('존재하지 않는 유저입니다');
     }
