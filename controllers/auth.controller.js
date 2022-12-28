@@ -8,12 +8,12 @@ class AuthController {
     try {
       const { email } = req.body;
       const checkId = await this.authService.checkId(email);
-
       return res
         .status(201)
         .json({ result: true, messeage: '이메일 중복 체크 성공' });
     } catch (error) {
       logger.error(error.message);
+      console.log(error);
       return res
         .status(error.status || 500)
         .json({ result: false, message: error.message });

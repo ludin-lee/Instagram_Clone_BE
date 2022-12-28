@@ -19,6 +19,7 @@ class PostController {
       const fileName = req.file.location;
 
       await this.postService.createPost(userId, content, fileName);
+
       return res
         .status(201)
         .json({ message: '게시글이 추가되었습니다.', result: true });
@@ -33,6 +34,14 @@ class PostController {
   findAllPosts = async (req, res) => {
     try {
       const posts = await this.postService.findAllPosts();
+
+      for (let i = 0; i < posts.length; i++) {
+        const commentInfo = await this.commentService.findComment(
+          posts[i].postId,
+        );
+        posts[i].comments = commentInfo;
+      }
+
       return res.status(200).json({ posts });
     } catch (error) {
       res.status(error.status).json({
