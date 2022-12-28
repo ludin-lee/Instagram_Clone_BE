@@ -15,7 +15,8 @@ class PostRepository {
     FROM Posts LEFT JOIN CountTable 
     ON Posts.postId = CountTable.postId
     LEFT JOIN Users
-    On Posts.userId = Users.userId`;
+    On Posts.userId = Users.userId
+    ORDER BY Posts.createdAt DESC`;
     const queryResult = await sequelize.query(query, {
       type: QueryTypes.SELECT,
     });
