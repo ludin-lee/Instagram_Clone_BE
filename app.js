@@ -7,27 +7,27 @@ const db = require('./models');
 const helmet = require('helmet');
 const logger = require('./config/loggers');
 const cors = require('cors');
-const https = require('https');
-const fs = require('fs');
+// const https = require('https');
+// const fs = require('fs');
 
-const privateKey = fs.readFileSync(
-  '/etc/letsencrypt/live/mylee.site/privkey.pem',
-  'utf8',
-);
-const certificate = fs.readFileSync(
-  '/etc/letsencrypt/live/mylee.site/cert.pem',
-  'utf8',
-);
-const ca = fs.readFileSync(
-  '/etc/letsencrypt/live/mylee.site/chain.pem',
-  'utf8',
-);
+// const privateKey = fs.readFileSync(
+//   '/etc/letsencrypt/live/mylee.site/privkey.pem',
+//   'utf8',
+// );
+// const certificate = fs.readFileSync(
+//   '/etc/letsencrypt/live/mylee.site/cert.pem',
+//   'utf8',
+// );
+// const ca = fs.readFileSync(
+//   '/etc/letsencrypt/live/mylee.site/chain.pem',
+//   'utf8',
+// );
 
-const credentials = {
-  key: privateKey,
-  cert: certificate,
-  ca: ca,
-};
+// const credentials = {
+//   key: privateKey,
+//   cert: certificate,
+//   ca: ca,
+// };
 
 // 미들웨어 통과하는 순서를 첫 번째로
 app.use(
@@ -50,16 +50,6 @@ db.sequelize.sync({
   force: false,
 });
 
-app.get('/', (req, res) => {
-  logger.info('GET /');
-  res.sendStatus(200);
-});
-
-app.get('/error', (req, res) => {
-  logger.error('Error message');
-  res.sendStatus(500);
-});
-
 // XSS 공격 방어
 app.use(helmet());
 app.use(helmet.xssFilter());
@@ -76,8 +66,8 @@ app.listen(port, () => {
   console.log(port, ' server is opened');
 });
 
-const httpsServer = https.createServer(credentials, app);
+// const httpsServer = https.createServer(credentials, app);
 
-httpsServer.listen(process.env.HTTPSPORT, () => {
-  console.log('HTTPS Server running on port 4433');
-});
+// httpsServer.listen(process.env.HTTPSPORT, () => {
+//   console.log('HTTPS Server running on port 4433');
+// });
